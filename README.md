@@ -26,20 +26,8 @@ uv pip install -e .
 uv pip install .
 ```
 
-### Standard pip | 标准 pip
-
-If you prefer using standard pip:
-如果您更喜欢使用标准 pip：
+### 在 .env 文件中配置 API Key
 
 ```bash
-pip install .
+API_KEY=your_api_key
 ```
-
-## 📋 Requirements | 环境要求
-
-- Python >= 3.11
-- modelscope
-
-## 🤝 Contributing | 贡献
-
-Contributions are welcome! Please submit a pull request or open an issue.
