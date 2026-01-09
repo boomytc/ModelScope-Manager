@@ -1,26 +1,23 @@
 # ModelScope Manager
 
-Professional ModelScope Account Manager & Switcher. One-click seamless account switching for ModelScope Tools.
+专为 ModelScope 提供账号管理与切换功能的工具。
 
-专业的 ModelScope 账号管理与切换工具。为 ModelScope 提供一键无缝账号切换功能。
+## 功能特性
 
-## 🚀 Features | 功能特性
+- 多账号管理
+- 一键切换
 
-- **Multi-Account Management (多账号管理)**: Manage multiple ModelScope accounts with ease.
-- **One-Click Switching (一键切换)**: Seamlessly switch between accounts for your ModelScope environment.
+## 安装
 
-## 🛠️ Installation | 安装
+强烈推荐使用 [uv](https://github.com/astral-sh/uv) 进行更快速、更可靠的包管理。
 
-We highly recommend using [uv](https://github.com/astral-sh/uv) for faster and more reliable package management.
-我们强烈推荐使用 [uv](https://github.com/astral-sh/uv) 进行更快速、更可靠的包管理。
-
-### Development (Recommended) | 开发模式（推荐）
+### 开发模式（推荐）
 
 ```bash
 uv pip install -e .
 ```
 
-### Production | 生产环境
+### 生产环境
 
 ```bash
 uv pip install .
