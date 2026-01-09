@@ -3,7 +3,11 @@ import toml
 from pathlib import Path
 
 class ConfigManager:
-    def __init__(self, config_path="gui/config.toml"):
+    def __init__(self, config_path=None):
+        if config_path is None:
+            # 默认配置文件位于 gui/config.toml
+            gui_dir = Path(__file__).resolve().parent.parent
+            config_path = gui_dir / "config.toml"
         self.config_path = Path(config_path)
         self.config = {}
         self.load_config()

@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 
 class MainWindowUI(QMainWindow):
@@ -12,7 +12,23 @@ class MainWindowUI(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        self.status_label = QLabel("Loading models...")
+        # Quota Information Area
+        quota_layout = QHBoxLayout()
+        self.quota_label = QLabel("用户额度: 加载中...")
+        self.quota_label.setAlignment(Qt.AlignLeft)
+        quota_layout.addWidget(self.quota_label)
+        
+        self.refresh_quota_btn = QPushButton("刷新额度")
+        quota_layout.addWidget(self.refresh_quota_btn)
+        
+        layout.addLayout(quota_layout)
+
+        # Model Quota Display
+        self.model_quota_label = QLabel("模型额度: N/A")
+        self.model_quota_label.setAlignment(Qt.AlignLeft)
+        layout.addWidget(self.model_quota_label)
+
+        self.status_label = QLabel("正在加载模型...")
         self.status_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.status_label)
 
