@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
 ]
-dependencies = ["modelscope"]
+dependencies = ["openai", "requests"]
 
 [tool.setuptools.packages.find]
 where = ["."]
