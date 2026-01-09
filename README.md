@@ -11,6 +11,26 @@ Professional ModelScope Account Manager & Switcher. One-click seamless account s
 
 ## 🛠️ Installation | 安装
 
+We highly recommend using [uv](https://github.com/astral-sh/uv) for faster and more reliable package management.
+我们强烈推荐使用 [uv](https://github.com/astral-sh/uv) 进行更快速、更可靠的包管理。
+
+### Development (Recommended) | 开发模式（推荐）
+
+```bash
+uv pip install -e .
+```
+
+### Production | 生产环境
+
+```bash
+uv pip install .
+```
+
+### Standard pip | 标准 pip
+
+If you prefer using standard pip:
+如果您更喜欢使用标准 pip：
+
 ```bash
 pip install .
 ```
