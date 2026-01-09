@@ -11,16 +11,10 @@
 
 强烈推荐使用 [uv](https://github.com/astral-sh/uv) 进行更快速、更可靠的包管理。
 
-### 开发模式（推荐）
+### 安装依赖包
 
 ```bash
-uv pip install -e .
-```
-
-### 生产环境
-
-```bash
-uv pip install .
+uv pip install -r requirements.txt
 ```
 
 ### 在 .env 文件中配置 API Key
