@@ -51,7 +51,35 @@ API_KEY=your_default_api_key
 python gui/main.py
 ```
 
-## 📂 项目结构
+## � 打包发布
+
+本项目支持使用 `PyInstaller` 跨平台打包 (macOS / Windows / Linux)。
+
+### 1. 确保安装 PyInstaller
+
+```bash
+uv pip install pyinstaller
+```
+
+### 2. 执行打包
+
+使用项目根目录下的 `build.spec` 配置文件进行打包：
+
+```bash
+# 清理旧构建并打包
+pyinstaller build.spec --clean --noconfirm
+```
+
+打包完成后，可执行文件将生成在 `dist/` 目录下：
+- **macOS**: `dist/ModelScope_Manager.app`
+- **Windows**: `dist/ModelScope_Manager.exe` (或文件夹)
+
+### 3. 数据存储说明
+打包后的应用会自动将配置文件存储在用户主目录，确保跨平台读写权限：
+- **配置文件**: `~/.modelscope_manager/config.toml`
+- **环境变量**: `~/.modelscope_manager/.env`
+
+## �📂 项目结构
 
 ```
 gui/
@@ -65,12 +93,8 @@ gui/
 │   ├── func_model_list.py
 │   └── func_account_manage.py
 ├── utils/               # 工具类
+│   ├── app_paths.py     # 统一路径管理
 │   ├── config_manager.py
 │   └── workers.py
 └── icon/                # 资源图标
 ```
-
-## 📝 配置文件
-
-- `.env`: 存储 API Key。
-- `gui/config.toml`: 存储用户偏好、自定义模型列表、收藏列表及窗口状态。

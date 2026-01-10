@@ -1,13 +1,13 @@
 import logging
 import toml
 from pathlib import Path
+from gui.utils import app_paths
 
 class ConfigManager:
     def __init__(self, config_path=None):
         if config_path is None:
-            # 默认配置文件位于 gui/config.toml
-            gui_dir = Path(__file__).resolve().parent.parent
-            config_path = gui_dir / "config.toml"
+            # 默认配置路径 (跨平台用户数据目录)
+            config_path = app_paths.get_config_file()
         self.config_path = Path(config_path)
         self.config = {}
         self.load_config()

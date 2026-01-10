@@ -4,6 +4,8 @@ from dotenv import load_dotenv, set_key, unset_key
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication
 from gui.ui.ui_account_manage import AccountManageUI, AccountItemWidget
 
+from gui.utils import app_paths
+
 class AccountManageTab(AccountManageUI):
     """账号管理标签页功能逻辑。"""
     
@@ -11,7 +13,7 @@ class AccountManageTab(AccountManageUI):
         super().__init__(parent)
         self.config_manager = config_manager
         self.on_account_changed = on_account_changed  # 切换账号时的回调
-        self.env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+        self.env_path = app_paths.get_env_file()
         self.accounts = {}  # {account_name: api_key}
         self.default_account_name = "默认"  # 固定的默认账号名称
         
