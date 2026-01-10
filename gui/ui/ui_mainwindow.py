@@ -1,18 +1,18 @@
 from pathlib import Path
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QPushButton, QLineEdit, QCheckBox
+from PySide6.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QListWidget, 
+                               QLabel, QHBoxLayout, QPushButton, QLineEdit, 
+                               QCheckBox, QTabWidget)
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
-class MainWindowUI(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("ModelScope Manager")
+class ModelListTab(QWidget):
+    """模型列表标签页 UI。"""
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.init_ui()
 
     def init_ui(self):
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        layout = QVBoxLayout(central_widget)
+        layout = QVBoxLayout(self)
 
         # Quota Information Area
         quota_layout = QHBoxLayout()
@@ -57,3 +57,22 @@ class MainWindowUI(QMainWindow):
         # Model List
         self.model_list = QListWidget()
         layout.addWidget(self.model_list)
+
+
+class MainWindowUI(QMainWindow):
+    """主窗口 UI，包含标签页。"""
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("ModelScope Manager")
+        self.init_ui()
+
+    def init_ui(self):
+        # Tab Widget
+        self.tab_widget = QTabWidget()
+        self.setCentralWidget(self.tab_widget)
+        
+        # Tab 1: 模型列表
+        self.model_tab = ModelListTab()
+        self.tab_widget.addTab(self.model_tab, "模型列表")
+
+        # Tab 2: 账号管理 (将在 func_mainwindow.py 中添加)

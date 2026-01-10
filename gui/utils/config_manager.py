@@ -93,3 +93,11 @@ class ConfigManager:
     def is_custom_model(self, model_id):
         """检查是否为自定义模型。"""
         return model_id in self.config.get("custom_models", [])
+
+    def get_active_account(self):
+        """获取当前激活的账号名。"""
+        return self.config.get("active_account", "")
+
+    def set_active_account(self, account_name):
+        """设置当前激活的账号名。"""
+        self.config["active_account"] = account_name
