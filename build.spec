@@ -49,9 +49,15 @@ coll = COLLECT(
     name='ModelScope_Manager',
 )
 
-app = BUNDLE(
-    coll,
-    name='ModelScope_Manager.app',
-    icon=None,
-    bundle_identifier='com.yourname.modelscope-manager',
-)
+import sys
+
+# ... existing code ...
+
+# 仅在 macOS 上生成 .app 包
+if sys.platform == 'darwin':
+    app = BUNDLE(
+        coll,
+        name='ModelScope_Manager.app',
+        icon=None,
+        bundle_identifier='com.yourname.modelscope-manager',
+    )
