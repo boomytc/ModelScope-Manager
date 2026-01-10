@@ -3,7 +3,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['gui/main.py'],
+    ['run.py'],
     pathex=[],
     binaries=[],
     datas=[('gui/icon', 'icon')],  # 将 gui/icon 文件夹复制到打包包的 root/icon
