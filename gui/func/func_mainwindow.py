@@ -1,5 +1,6 @@
-from PySide6.QtWidgets import QMessageBox, QInputDialog
+from PySide6.QtWidgets import QMessageBox, QInputDialog, QApplication, QListWidgetItem
 from gui.ui.ui_mainwindow import MainWindowUI
+from gui.ui.ui_model_item import ModelItemWidget
 from gui.utils.config_manager import ConfigManager
 from gui.utils.workers import ModelListWorker, QuotaWorker
 
@@ -7,8 +8,11 @@ class MainWindow(MainWindowUI):
     def __init__(self):
         super().__init__()
         self.config_manager = ConfigManager()
+        self.all_models = []  # 存储完整模型列表用于搜索
         self.restore_geometry()
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
+        self.search_input.textChanged.connect(self.on_search_changed)
+        self.favorites_only_checkbox.stateChanged.connect(self.on_filter_changed)
         self.load_data()
 
     def restore_geometry(self):
@@ -23,6 +27,7 @@ class MainWindow(MainWindowUI):
 
     def on_data_loaded(self, quota_info):
         models = quota_info.get("models", [])
+        self.all_models = models  # 保存完整列表
         self.status_label.setText(f"找到 {len(models)} 个模型")
         
         # 更新限流信息显示
@@ -30,12 +35,50 @@ class MainWindow(MainWindowUI):
         user_remaining = quota_info.get("user_remaining", "N/A")
         self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
         
+        self.update_model_list()
+
+    def update_model_list(self):
+        """根据搜索条件和收藏过滤更新模型列表。"""
+        search_text = self.search_input.text().lower()
+        favorites_only = self.favorites_only_checkbox.isChecked()
+        
         self.model_list.clear()
-        self.model_list.addItems(models)
+        
+        for model in self.all_models:
+            # 搜索过滤
+            if search_text and search_text not in model.lower():
+                continue
+            
+            # 收藏过滤
+            is_favorite = self.config_manager.is_favorite(model)
+            if favorites_only and not is_favorite:
+                continue
+            
+            # 创建自定义 item widget
+            item = QListWidgetItem(self.model_list)
+            widget = ModelItemWidget(model, is_favorite)
+            widget.copy_clicked.connect(self.copy_model_id)
+            widget.favorite_clicked.connect(self.toggle_favorite)
+            item.setSizeHint(widget.sizeHint())
+            self.model_list.addItem(item)
+            self.model_list.setItemWidget(item, widget)
+
+    def on_search_changed(self, text):
+        """搜索内容变化时过滤列表。"""
+        self.update_model_list()
+
+    def on_filter_changed(self, state):
+        """收藏过滤复选框变化时更新列表。"""
+        self.update_model_list()
 
     def on_refresh_quota(self):
         # 获取当前列表中的模型
-        items = [self.model_list.item(i).text() for i in range(self.model_list.count())]
+        items = []
+        for i in range(self.model_list.count()):
+            widget = self.model_list.itemWidget(self.model_list.item(i))
+            if widget:
+                items.append(widget.model_id)
+        
         if not items:
             QMessageBox.warning(self, "警告", "没有可供选择的模型。")
             return
@@ -76,6 +119,22 @@ class MainWindow(MainWindowUI):
     def on_error(self, error_msg):
         self.status_label.setText("加载模型出错")
         QMessageBox.critical(self, "错误", error_msg)
+
+    def copy_model_id(self, model_id):
+        """复制模型 ID 到剪贴板。"""
+        clipboard = QApplication.clipboard()
+        clipboard.setText(model_id)
+        self.status_label.setText(f"已复制: {model_id}")
+
+    def toggle_favorite(self, model_id):
+        """切换收藏状态。"""
+        if self.config_manager.is_favorite(model_id):
+            self.config_manager.remove_favorite(model_id)
+            self.status_label.setText(f"已取消收藏: {model_id}")
+        else:
+            self.config_manager.add_favorite(model_id)
+            self.status_label.setText(f"已收藏: {model_id}")
+        self.config_manager.save_config()
 
     def closeEvent(self, event):
         # 关闭时保存窗口几何信息

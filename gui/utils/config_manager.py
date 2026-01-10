@@ -53,3 +53,23 @@ class ConfigManager:
         self.config["window"]["y"] = y
         self.config["window"]["width"] = width
         self.config["window"]["height"] = height
+
+    def get_favorites(self):
+        """获取收藏的模型列表。"""
+        return self.config.get("favorites", [])
+
+    def add_favorite(self, model_id):
+        """添加模型到收藏。"""
+        if "favorites" not in self.config:
+            self.config["favorites"] = []
+        if model_id not in self.config["favorites"]:
+            self.config["favorites"].append(model_id)
+
+    def remove_favorite(self, model_id):
+        """从收藏中移除模型。"""
+        if "favorites" in self.config and model_id in self.config["favorites"]:
+            self.config["favorites"].remove(model_id)
+
+    def is_favorite(self, model_id):
+        """检查模型是否已收藏。"""
+        return model_id in self.config.get("favorites", [])

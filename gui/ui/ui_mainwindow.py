@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QPushButton, QLineEdit, QCheckBox
 from PySide6.QtCore import Qt
 
 class MainWindowUI(QMainWindow):
@@ -32,5 +32,18 @@ class MainWindowUI(QMainWindow):
         self.status_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.status_label)
 
+        # Search and Filter Area
+        filter_layout = QHBoxLayout()
+        
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("搜索模型...")
+        filter_layout.addWidget(self.search_input)
+        
+        self.favorites_only_checkbox = QCheckBox("仅收藏")
+        filter_layout.addWidget(self.favorites_only_checkbox)
+        
+        layout.addLayout(filter_layout)
+
+        # Model List
         self.model_list = QListWidget()
         layout.addWidget(self.model_list)
