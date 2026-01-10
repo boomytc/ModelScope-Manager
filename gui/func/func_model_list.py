@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QApplication, QListWidgetItem
 from gui.ui.ui_model_list import ModelListUI, ModelItemWidget
-from gui.utils.config_manager import ConfigManager
 from gui.utils.workers import ModelListWorker, QuotaWorker
 
 class ModelListTab(ModelListUI):

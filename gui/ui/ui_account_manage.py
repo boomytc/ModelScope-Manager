@@ -1,6 +1,6 @@
 from pathlib import Path
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, 
-                               QListWidgetItem, QPushButton, QLabel, QSizePolicy)
+                               QPushButton, QLabel, QSizePolicy)
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, Signal
 

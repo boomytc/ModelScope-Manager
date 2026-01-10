@@ -1,9 +1,8 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv, set_key, unset_key
-from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem
+from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication
 from gui.ui.ui_account_manage import AccountManageUI, AccountItemWidget
-from gui.utils.config_manager import ConfigManager
 
 class AccountManageTab(AccountManageUI):
     """账号管理标签页功能逻辑。"""
@@ -170,7 +169,6 @@ class AccountManageTab(AccountManageUI):
 
     def on_copy_api_key(self, api_key):
         """复制 API Key 到剪贴板。"""
-        from PySide6.QtWidgets import QApplication
         clipboard = QApplication.clipboard()
         clipboard.setText(api_key)
         self.status_label.setText("已复制 API Key")
