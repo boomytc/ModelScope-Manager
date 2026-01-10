@@ -73,3 +73,23 @@ class ConfigManager:
     def is_favorite(self, model_id):
         """检查模型是否已收藏。"""
         return model_id in self.config.get("favorites", [])
+
+    def get_custom_models(self):
+        """获取自定义模型列表。"""
+        return self.config.get("custom_models", [])
+
+    def add_custom_model(self, model_id):
+        """添加自定义模型。"""
+        if "custom_models" not in self.config:
+            self.config["custom_models"] = []
+        if model_id not in self.config["custom_models"]:
+            self.config["custom_models"].append(model_id)
+
+    def remove_custom_model(self, model_id):
+        """移除自定义模型。"""
+        if "custom_models" in self.config and model_id in self.config["custom_models"]:
+            self.config["custom_models"].remove(model_id)
+
+    def is_custom_model(self, model_id):
+        """检查是否为自定义模型。"""
+        return model_id in self.config.get("custom_models", [])

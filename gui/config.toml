@@ -1,4 +1,5 @@
 favorites = [ "Qwen/Qwen3-VL-235B-A22B-Instruct", "Qwen/Qwen3-Next-80B-A3B-Instruct", "Qwen/Qwen3-235B-A22B-Instruct-2507",]
+custom_models = [ "ZhipuAI/AutoGLM-Phone-9B",]
 
 [window]
 x = -378

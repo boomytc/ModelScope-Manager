@@ -8,11 +8,12 @@ class MainWindow(MainWindowUI):
     def __init__(self):
         super().__init__()
         self.config_manager = ConfigManager()
-        self.all_models = []  # 存储完整模型列表用于搜索
+        self.all_models = []  # 存储 API 返回的模型列表
         self.restore_geometry()
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
         self.search_input.textChanged.connect(self.on_search_changed)
         self.favorites_only_checkbox.stateChanged.connect(self.on_filter_changed)
+        self.add_model_btn.clicked.connect(self.on_add_custom_model)
         self.load_data()
 
     def restore_geometry(self):
@@ -42,9 +43,16 @@ class MainWindow(MainWindowUI):
         search_text = self.search_input.text().lower()
         favorites_only = self.favorites_only_checkbox.isChecked()
         
+        # 合并 API 模型和自定义模型 (去重)
+        custom_models = self.config_manager.get_custom_models()
+        merged_models = list(self.all_models)
+        for cm in custom_models:
+            if cm not in merged_models:
+                merged_models.append(cm)
+        
         self.model_list.clear()
         
-        for model in self.all_models:
+        for model in merged_models:
             # 搜索过滤
             if search_text and search_text not in model.lower():
                 continue
@@ -54,11 +62,15 @@ class MainWindow(MainWindowUI):
             if favorites_only and not is_favorite:
                 continue
             
+            # 检查是否为自定义模型
+            is_custom = self.config_manager.is_custom_model(model)
+            
             # 创建自定义 item widget
             item = QListWidgetItem(self.model_list)
-            widget = ModelItemWidget(model, is_favorite)
+            widget = ModelItemWidget(model, is_favorite, is_custom)
             widget.copy_clicked.connect(self.copy_model_id)
             widget.favorite_clicked.connect(self.toggle_favorite)
+            widget.delete_clicked.connect(self.delete_custom_model)
             item.setSizeHint(widget.sizeHint())
             self.model_list.addItem(item)
             self.model_list.setItemWidget(item, widget)
@@ -135,6 +147,30 @@ class MainWindow(MainWindowUI):
             self.config_manager.add_favorite(model_id)
             self.status_label.setText(f"已收藏: {model_id}")
         self.config_manager.save_config()
+
+    def on_add_custom_model(self):
+        """添加自定义模型。"""
+        model_id, ok = QInputDialog.getText(self, "添加自定义模型", 
+                                           "请输入模型 ID (例: org/model-name):")
+        if ok and model_id.strip():
+            model_id = model_id.strip()
+            if model_id in self.all_models:
+                QMessageBox.information(self, "提示", "该模型已在 API 列表中。")
+                return
+            if self.config_manager.is_custom_model(model_id):
+                QMessageBox.information(self, "提示", "该模型已存在。")
+                return
+            self.config_manager.add_custom_model(model_id)
+            self.config_manager.save_config()
+            self.status_label.setText(f"已添加: {model_id}")
+            self.update_model_list()
+
+    def delete_custom_model(self, model_id):
+        """删除自定义模型。"""
+        self.config_manager.remove_custom_model(model_id)
+        self.config_manager.save_config()
+        self.status_label.setText(f"已删除: {model_id}")
+        self.update_model_list()
 
     def closeEvent(self, event):
         # 关闭时保存窗口几何信息

@@ -6,11 +6,13 @@ from PySide6.QtCore import Signal
 class ModelItemWidget(QWidget):
     copy_clicked = Signal(str)
     favorite_clicked = Signal(str)
+    delete_clicked = Signal(str)
 
-    def __init__(self, model_id, is_favorite=False, parent=None):
+    def __init__(self, model_id, is_favorite=False, is_custom=False, parent=None):
         super().__init__(parent)
         self.model_id = model_id
         self.is_favorite = is_favorite
+        self.is_custom = is_custom
         self.init_ui()
 
     def init_ui(self):
@@ -41,6 +43,16 @@ class ModelItemWidget(QWidget):
         self.update_favorite_icon()
         self.favorite_btn.clicked.connect(self.on_favorite_clicked)
         layout.addWidget(self.favorite_btn)
+
+        # 删除按钮 (仅自定义模型显示)
+        self.delete_btn = QPushButton()
+        self.delete_btn.setIcon(QIcon(str(icon_dir / "Delete.png")))
+        self.delete_btn.setFixedSize(24, 24)
+        self.delete_btn.setFlat(True)
+        self.delete_btn.setToolTip("删除自定义模型")
+        self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.model_id))
+        self.delete_btn.setVisible(self.is_custom)
+        layout.addWidget(self.delete_btn)
 
     def update_favorite_icon(self):
         icon_dir = Path(__file__).resolve().parent.parent / "icon"

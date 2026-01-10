@@ -1,4 +1,6 @@
+from pathlib import Path
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QListWidget, QLabel, QHBoxLayout, QPushButton, QLineEdit, QCheckBox
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 class MainWindowUI(QMainWindow):
@@ -41,6 +43,14 @@ class MainWindowUI(QMainWindow):
         
         self.favorites_only_checkbox = QCheckBox("仅收藏")
         filter_layout.addWidget(self.favorites_only_checkbox)
+        
+        # Add Custom Model Button
+        icon_dir = Path(__file__).resolve().parent.parent / "icon"
+        self.add_model_btn = QPushButton()
+        self.add_model_btn.setIcon(QIcon(str(icon_dir / "Add.png")))
+        self.add_model_btn.setFixedSize(28, 28)
+        self.add_model_btn.setToolTip("添加自定义模型")
+        filter_layout.addWidget(self.add_model_btn)
         
         layout.addLayout(filter_layout)
 
