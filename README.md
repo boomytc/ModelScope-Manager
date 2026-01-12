@@ -76,8 +76,14 @@ pyinstaller build.spec --clean --noconfirm
 
 ### 3. 数据存储说明
 打包后的应用会自动将配置文件存储在用户主目录，确保跨平台读写权限：
+
+**macOS / Linux:**
 - **配置文件**: `~/.modelscope_manager/config.toml`
 - **环境变量**: `~/.modelscope_manager/.env`
+
+**Windows:**
+- **配置文件**: `%USERPROFILE%\.modelscope_manager\config.toml`
+- **环境变量**: `%USERPROFILE%\.modelscope_manager\.env`
 
 ## �📂 项目结构
 
