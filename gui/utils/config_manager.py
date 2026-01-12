@@ -102,6 +102,26 @@ class ConfigManager:
         """设置当前激活的账号名。"""
         self.config["active_account"] = account_name
 
+    def get_invisible(self):
+        """获取隐藏的模型列表。"""
+        return self.config.get("invisible", [])
+
+    def add_invisible(self, model_id):
+        """添加模型到隐藏列表。"""
+        if "invisible" not in self.config:
+            self.config["invisible"] = []
+        if model_id not in self.config["invisible"]:
+            self.config["invisible"].append(model_id)
+
+    def remove_invisible(self, model_id):
+        """从隐藏列表中移除模型。"""
+        if "invisible" in self.config and model_id in self.config["invisible"]:
+            self.config["invisible"].remove(model_id)
+
+    def is_invisible(self, model_id):
+        """检查模型是否已隐藏。"""
+        return model_id in self.config.get("invisible", [])
+
     def get_last_quota(self):
         """获取最后一次保存的额度信息 (基于当前账号)。"""
         account = self.get_active_account()

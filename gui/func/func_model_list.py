@@ -14,8 +14,10 @@ class ModelListTab(ModelListUI):
         self.quota_worker = None  # 额度检查 worker
         
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
+        self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
         self.search_input.textChanged.connect(self.on_search_changed)
         self.favorites_only_checkbox.stateChanged.connect(self.on_filter_changed)
+        self.hidden_only_checkbox.stateChanged.connect(self.on_filter_changed)
         self.add_model_btn.clicked.connect(self.on_add_custom_model)
 
         self.load_cached_quota()
@@ -69,6 +71,7 @@ class ModelListTab(ModelListUI):
         """根据搜索条件和收藏过滤更新模型列表。"""
         search_text = self.search_input.text().lower()
         favorites_only = self.favorites_only_checkbox.isChecked()
+        hidden_only = self.hidden_only_checkbox.isChecked()
         
         custom_models = self.config_manager.get_custom_models()
         merged_models = list(self.all_models)
@@ -86,12 +89,25 @@ class ModelListTab(ModelListUI):
             if favorites_only and not is_favorite:
                 continue
             
+            is_visible = not self.config_manager.is_invisible(model)
+            # 如果勾选了“仅隐藏”，只显示隐藏的
+            if hidden_only:
+                if is_visible:
+                    continue
+            # 如果没勾选“仅隐藏”，默认不显示隐藏的 (除非它同时是收藏且勾选了仅收藏？通常隐藏优先级更高或更低)
+            # 用户逻辑通常是：常规列表不看隐藏。回收站(仅隐藏)看隐藏。
+            else:
+                if not is_visible:
+                    continue
+
             is_custom = self.config_manager.is_custom_model(model)
             
             item = QListWidgetItem(self.model_list)
-            widget = ModelItemWidget(model, is_favorite, is_custom)
+            # 注意 ModelItemWidget 的构造函数参数变了
+            widget = ModelItemWidget(model, is_favorite, is_custom, not is_visible)
             widget.copy_clicked.connect(self.copy_model_id)
             widget.favorite_clicked.connect(self.toggle_favorite)
+            widget.hide_clicked.connect(self.toggle_hide)
             widget.delete_clicked.connect(self.delete_custom_model)
             item.setSizeHint(widget.sizeHint())
             self.model_list.addItem(item)
@@ -176,6 +192,16 @@ class ModelListTab(ModelListUI):
             self.config_manager.add_favorite(model_id)
             self.status_label.setText(f"已收藏: {model_id}")
         self.config_manager.save_config()
+
+    def toggle_hide(self, model_id):
+        if self.config_manager.is_invisible(model_id):
+            self.config_manager.remove_invisible(model_id)
+            self.status_label.setText(f"已取消隐藏: {model_id}")
+        else:
+            self.config_manager.add_invisible(model_id)
+            self.status_label.setText(f"已隐藏: {model_id}")
+        self.config_manager.save_config()
+        self.update_model_list()
 
     def on_add_custom_model(self):
         model_id, ok = QInputDialog.getText(self, "添加自定义模型", 
