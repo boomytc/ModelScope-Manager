@@ -14,7 +14,6 @@ class ModelListTab(ModelListUI):
         self.quota_worker = None  # 额度检查 worker
         
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
-        self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
         self.search_input.textChanged.connect(self.on_search_changed)
         self.favorites_only_checkbox.stateChanged.connect(self.on_filter_changed)
         self.hidden_only_checkbox.stateChanged.connect(self.on_filter_changed)
@@ -69,6 +68,9 @@ class ModelListTab(ModelListUI):
 
     def update_model_list(self):
         """根据搜索条件和收藏过滤更新模型列表。"""
+        # 记录当前滚动条位置
+        current_scroll_value = self.model_list.verticalScrollBar().value()
+        
         search_text = self.search_input.text().lower()
         favorites_only = self.favorites_only_checkbox.isChecked()
         hidden_only = self.hidden_only_checkbox.isChecked()
@@ -94,8 +96,7 @@ class ModelListTab(ModelListUI):
             if hidden_only:
                 if is_visible:
                     continue
-            # 如果没勾选“仅隐藏”，默认不显示隐藏的 (除非它同时是收藏且勾选了仅收藏？通常隐藏优先级更高或更低)
-            # 用户逻辑通常是：常规列表不看隐藏。回收站(仅隐藏)看隐藏。
+            # 如果没勾选“仅隐藏”，默认不显示隐藏的
             else:
                 if not is_visible:
                     continue
@@ -112,6 +113,9 @@ class ModelListTab(ModelListUI):
             item.setSizeHint(widget.sizeHint())
             self.model_list.addItem(item)
             self.model_list.setItemWidget(item, widget)
+            
+        # 恢复滚动条位置
+        self.model_list.verticalScrollBar().setValue(current_scroll_value)
 
     def on_search_changed(self, text):
         self.update_model_list()
