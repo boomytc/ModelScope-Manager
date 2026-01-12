@@ -101,3 +101,31 @@ class ConfigManager:
     def set_active_account(self, account_name):
         """设置当前激活的账号名。"""
         self.config["active_account"] = account_name
+
+    def get_last_quota(self):
+        """获取最后一次保存的额度信息 (基于当前账号)。"""
+        account = self.get_active_account()
+        if not account:
+            return {"user_remaining": "N/A", "user_limit": "N/A"}
+
+        quotas = self.config.get("quotas", {})
+        account_quota = quotas.get(account, {})
+        return {
+            "user_remaining": account_quota.get("user_remaining", "N/A"),
+            "user_limit": account_quota.get("user_limit", "N/A")
+        }
+
+    def set_last_quota(self, user_remaining, user_limit):
+        """保存额度信息 (基于当前账号)。"""
+        account = self.get_active_account()
+        if not account:
+            return
+
+        if "quotas" not in self.config:
+            self.config["quotas"] = {}
+        
+        if account not in self.config["quotas"]:
+            self.config["quotas"][account] = {}
+
+        self.config["quotas"][account]["user_remaining"] = str(user_remaining)
+        self.config["quotas"][account]["user_limit"] = str(user_limit)

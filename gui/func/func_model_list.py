@@ -18,8 +18,21 @@ class ModelListTab(ModelListUI):
         self.favorites_only_checkbox.stateChanged.connect(self.on_filter_changed)
         self.add_model_btn.clicked.connect(self.on_add_custom_model)
 
+        self.load_cached_quota()
+
+    def load_cached_quota(self):
+        """加载缓存的额度信息。"""
+        quota = self.config_manager.get_last_quota()
+        user_remaining = quota.get("user_remaining", "N/A")
+        user_limit = quota.get("user_limit", "N/A")
+        if user_remaining != "N/A":
+            self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+
     def load_data(self):
         """加载模型列表。"""
+        # 加载当前账号的缓存额度
+        self.load_cached_quota()
+
         # 终止旧 worker
         if self.worker is not None and self.worker.isRunning():
             self.worker.quit()
@@ -38,7 +51,17 @@ class ModelListTab(ModelListUI):
         
         user_limit = quota_info.get("user_limit", "N/A")
         user_remaining = quota_info.get("user_remaining", "N/A")
-        self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+
+        # 仅当获取到有效额度时才更新和保存
+        if user_remaining != "N/A" and user_limit != "N/A":
+            self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+            self.config_manager.set_last_quota(user_remaining, user_limit)
+            self.config_manager.save_config()
+        elif user_remaining == "N/A":
+            # 如果是 N/A，尝试保持显示缓存的值（如果还未显示）
+            # 注意：load_cached_quota 已经在 load_data 开始时调用过，
+            # 所以这里不需要做什么，只要不覆盖成 N/A 即可。
+            pass
         
         self.update_model_list()
 
@@ -114,8 +137,17 @@ class ModelListTab(ModelListUI):
         model_remaining = quota_info.get("model_remaining", "N/A")
         status_code = quota_info.get("status_code", "Unknown")
         
-        self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
-        self.model_quota_label.setText(f"模型额度: {model_remaining} / {model_limit}")
+        if user_remaining != "N/A" and user_limit != "N/A":
+            self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+            self.config_manager.set_last_quota(user_remaining, user_limit)
+            self.config_manager.save_config()
+        else:
+            self.quota_label.setText("用户额度: N/A / N/A")
+
+        if model_remaining != "N/A" and model_limit != "N/A":
+            self.model_quota_label.setText(f"模型额度: {model_remaining} / {model_limit}")
+        else:
+             self.model_quota_label.setText("模型额度: N/A / N/A")
         
         if status_code == 200:
             QMessageBox.information(self, "额度已刷新", f"额度刷新成功。\n状态码: {status_code}")
