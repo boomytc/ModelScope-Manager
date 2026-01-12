@@ -1,10 +1,13 @@
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv, set_key, unset_key
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication, QLineEdit
 from gui.ui.ui_account_manage import AccountManageUI, AccountItemWidget
 
 from gui.utils import app_paths
+
+ACCOUNT_NAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
 
 class AccountManageTab(AccountManageUI):
     """账号管理标签页功能逻辑。"""
@@ -74,6 +77,10 @@ class AccountManageTab(AccountManageUI):
         if not ok or not name.strip():
             return
         name = name.strip()
+
+        if not ACCOUNT_NAME_PATTERN.fullmatch(name):
+            QMessageBox.warning(self, "警告", "账号名仅允许字母、数字、下划线和短横线。")
+            return
         
         # 不允许与默认账号同名
         if name == self.default_account_name:

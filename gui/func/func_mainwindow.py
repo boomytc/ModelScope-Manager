@@ -1,3 +1,4 @@
+from PySide6.QtGui import QGuiApplication
 from gui.ui.ui_mainwindow import MainWindowUI
 from gui.func.func_model_list import ModelListTab
 from gui.func.func_account_manage import AccountManageTab
@@ -46,6 +47,23 @@ class MainWindow(MainWindowUI):
 
     def restore_geometry(self):
         x, y, w, h = self.config_manager.get_window_geometry()
+        screen = QGuiApplication.primaryScreen()
+        if screen:
+            available = screen.availableGeometry()
+            if w <= 0:
+                w = 800
+            if h <= 0:
+                h = 600
+            w = min(w, available.width())
+            h = min(h, available.height())
+            if (
+                x + w < available.left()
+                or x > available.right()
+                or y + h < available.top()
+                or y > available.bottom()
+            ):
+                x = available.left() + max((available.width() - w) // 2, 0)
+                y = available.top() + max((available.height() - h) // 2, 0)
         self.setGeometry(x, y, w, h)
 
     def closeEvent(self, event):

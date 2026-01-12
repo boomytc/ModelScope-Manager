@@ -34,11 +34,6 @@ class ModelListTab(ModelListUI):
         # 加载当前账号的缓存额度
         self.load_cached_quota()
 
-        # 终止旧 worker
-        if self.worker is not None and self.worker.isRunning():
-            self.worker.quit()
-            self.worker.wait()
-        
         api_key = self.get_api_key() if self.get_api_key else None
         self.worker = ModelListWorker(api_key)
         self.worker.finished.connect(self.on_data_loaded)
@@ -46,6 +41,8 @@ class ModelListTab(ModelListUI):
         self.worker.start()
 
     def on_data_loaded(self, quota_info):
+        if self.sender() is not self.worker:
+            return
         models = quota_info.get("models", [])
         self.all_models = models
         self.status_label.setText(f"找到 {len(models)} 个模型")
@@ -138,11 +135,6 @@ class ModelListTab(ModelListUI):
                                        "选择一个模型进行额度检查 (将消耗 1 次调用):", 
                                        items, 0, False)
         if ok and model:
-            # 终止旧 quota_worker
-            if self.quota_worker is not None and self.quota_worker.isRunning():
-                self.quota_worker.quit()
-                self.quota_worker.wait()
-            
             self.quota_label.setText("额度: 检查中...")
             api_key = self.get_api_key() if self.get_api_key else None
             self.quota_worker = QuotaWorker(model, api_key)
@@ -151,6 +143,8 @@ class ModelListTab(ModelListUI):
             self.quota_worker.start()
 
     def on_quota_checked(self, quota_info):
+        if self.sender() is not self.quota_worker:
+            return
         user_limit = quota_info.get("user_limit", "N/A")
         user_remaining = quota_info.get("user_remaining", "N/A")
         model_limit = quota_info.get("model_limit", "N/A")
@@ -167,7 +161,7 @@ class ModelListTab(ModelListUI):
         if model_remaining != "N/A" and model_limit != "N/A":
             self.model_quota_label.setText(f"模型额度: {model_remaining} / {model_limit}")
         else:
-             self.model_quota_label.setText("模型额度: N/A / N/A")
+            self.model_quota_label.setText("模型额度: N/A / N/A")
         
         if status_code == 200:
             QMessageBox.information(self, "额度已刷新", f"额度刷新成功。\n状态码: {status_code}")
@@ -176,11 +170,19 @@ class ModelListTab(ModelListUI):
                               f"请求完成，状态码 {status_code}，但响应头已更新。")
 
     def on_quota_error(self, error_msg):
+        if self.sender() is not self.quota_worker:
+            return
         self.quota_label.setText("额度: 错误")
         QMessageBox.critical(self, "错误", error_msg)
 
     def on_error(self, error_msg):
-        self.status_label.setText("加载模型出错")
+        if self.sender() is not self.worker:
+            return
+        self.all_models = []
+        self.model_list.clear()
+        self.status_label.setText("无数据/错误状态")
+        self.quota_label.setText("用户额度: N/A / N/A")
+        self.model_quota_label.setText("模型额度: N/A")
         QMessageBox.critical(self, "错误", error_msg)
 
     def copy_model_id(self, model_id):
@@ -196,6 +198,7 @@ class ModelListTab(ModelListUI):
             self.config_manager.add_favorite(model_id)
             self.status_label.setText(f"已收藏: {model_id}")
         self.config_manager.save_config()
+        self.update_model_list()
 
     def toggle_hide(self, model_id):
         if self.config_manager.is_invisible(model_id):

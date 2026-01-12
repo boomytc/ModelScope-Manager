@@ -3,6 +3,8 @@ import requests
 from PySide6.QtCore import QThread, Signal
 from dotenv import load_dotenv
 
+REQUEST_TIMEOUT = 15
+
 class ModelListWorker(QThread):
     finished = Signal(dict)
     error = Signal(str)
@@ -26,7 +28,7 @@ class ModelListWorker(QThread):
             base_url = "https://api-inference.modelscope.cn/v1/models"
             headers = {"Authorization": f"Bearer {api_key}"}
 
-            response = requests.get(base_url, headers=headers)
+            response = requests.get(base_url, headers=headers, timeout=REQUEST_TIMEOUT)
             
             if response.status_code == 200:
                 resp_json = response.json()
@@ -82,7 +84,12 @@ class QuotaWorker(QThread):
                 "max_tokens": 1
             }
 
-            response = requests.post(base_url, headers=headers, json=payload)
+            response = requests.post(
+                base_url,
+                headers=headers,
+                json=payload,
+                timeout=REQUEST_TIMEOUT,
+            )
             
             quota_info = {
                 "user_limit": response.headers.get("modelscope-ratelimit-requests-limit", "N/A"),
