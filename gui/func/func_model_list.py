@@ -10,6 +10,8 @@ class ModelListTab(ModelListUI):
         self.config_manager = config_manager
         self.get_api_key = get_api_key_func  # 获取当前 API Key 的回调
         self.all_models = []  # 存储 API 返回的模型列表
+        self.worker = None  # 模型列表加载 worker
+        self.quota_worker = None  # 额度检查 worker
         
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
         self.search_input.textChanged.connect(self.on_search_changed)
@@ -18,6 +20,11 @@ class ModelListTab(ModelListUI):
 
     def load_data(self):
         """加载模型列表。"""
+        # 终止旧 worker
+        if self.worker is not None and self.worker.isRunning():
+            self.worker.quit()
+            self.worker.wait()
+        
         api_key = self.get_api_key() if self.get_api_key else None
         self.worker = ModelListWorker(api_key)
         self.worker.finished.connect(self.on_data_loaded)
@@ -88,6 +95,11 @@ class ModelListTab(ModelListUI):
                                        "选择一个模型进行额度检查 (将消耗 1 次调用):", 
                                        items, 0, False)
         if ok and model:
+            # 终止旧 quota_worker
+            if self.quota_worker is not None and self.quota_worker.isRunning():
+                self.quota_worker.quit()
+                self.quota_worker.wait()
+            
             self.quota_label.setText("额度: 检查中...")
             api_key = self.get_api_key() if self.get_api_key else None
             self.quota_worker = QuotaWorker(model, api_key)

@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv, set_key, unset_key
-from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication
+from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication, QLineEdit
 from gui.ui.ui_account_manage import AccountManageUI, AccountItemWidget
 
 from gui.utils import app_paths
@@ -35,6 +35,13 @@ class AccountManageTab(AccountManageUI):
             if key.startswith("API_KEY_"):
                 account_name = key[8:]  # 去掉 "API_KEY_" 前缀
                 self.accounts[account_name] = value
+        
+        # 首次启动时自动激活第一个账号
+        active_account = self.config_manager.get_active_account()
+        if self.accounts and (not active_account or active_account not in self.accounts):
+            first_account = list(self.accounts.keys())[0]
+            self.config_manager.set_active_account(first_account)
+            self.config_manager.save_config()
         
         self.update_account_list()
 
@@ -77,7 +84,8 @@ class AccountManageTab(AccountManageUI):
             QMessageBox.warning(self, "警告", f"账号 '{name}' 已存在。")
             return
         
-        api_key, ok = QInputDialog.getText(self, "添加账号", f"请输入 {name} 的 API Key:")
+        api_key, ok = QInputDialog.getText(self, "添加账号", f"请输入 {name} 的 API Key:",
+                                           QLineEdit.Password)
         if not ok or not api_key.strip():
             return
         api_key = api_key.strip()
@@ -103,7 +111,7 @@ class AccountManageTab(AccountManageUI):
         current_key = self.accounts.get(account_name, "")
         new_key, ok = QInputDialog.getText(self, "编辑账号", 
                                           f"请输入 {account_name} 的新 API Key:",
-                                          text=current_key)
+                                          QLineEdit.Password, current_key)
         if not ok or not new_key.strip():
             return
         new_key = new_key.strip()
