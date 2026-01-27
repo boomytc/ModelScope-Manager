@@ -1,6 +1,11 @@
+# 常见的临时文件和目录
+.DS_Store
 __pycache__
+
+# 库编译生成内容
 *.egg-info
 build
-.env
-.DS_Store
 dist
+
+# 环境配置文件
+.env
