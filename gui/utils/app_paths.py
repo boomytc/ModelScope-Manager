@@ -14,12 +14,9 @@ def get_icon_path(icon_name):
     return str(root / "gui" / "icon" / icon_name)
 
 def get_data_path():
-    """获取用户数据存储目录 (跨平台)。
-    macOS/Linux: ~/.modelscope_manager/
-    Windows: C:/Users/Name/.modelscope_manager/
-    """
-    home = Path.home()
-    data_dir = home / ".modelscope_manager"
+    """获取用户数据存储目录 (项目内)。"""
+    root = get_app_root()
+    data_dir = root / ".modelscope_manager"
     
     # 确保目录存在
     if not data_dir.exists():
