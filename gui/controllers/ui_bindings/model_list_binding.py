@@ -26,7 +26,7 @@ class ModelListTab(ModelListUI):
         user_remaining = quota.get("user_remaining", "N/A")
         user_limit = quota.get("user_limit", "N/A")
         if user_remaining != "N/A":
-            self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+            self._set_user_quota_label(user_remaining, user_limit)
 
     def load_data(self):
         """加载模型列表。"""
@@ -44,9 +44,7 @@ class ModelListTab(ModelListUI):
 
         result = self.app.update_quota_from_list(quota_info)
         if result["updated"]:
-            self.quota_label.setText(
-                f"用户额度: {result['user_remaining']} / {result['user_limit']}"
-            )
+            self._set_user_quota_label(result["user_remaining"], result["user_limit"])
 
         self.update_model_list()
 
@@ -120,18 +118,11 @@ class ModelListTab(ModelListUI):
             return
         result = self.app.update_quota_from_check(quota_info)
         if result["updated"]:
-            self.quota_label.setText(
-                f"用户额度: {result['user_remaining']} / {result['user_limit']}"
-            )
+            self._set_user_quota_label(result["user_remaining"], result["user_limit"])
         else:
-            self.quota_label.setText("用户额度: N/A / N/A")
+            self._set_user_quota_label("N/A", "N/A")
 
-        if result["model_remaining"] != "N/A" and result["model_limit"] != "N/A":
-            self.model_quota_label.setText(
-                f"模型额度: {result['model_remaining']} / {result['model_limit']}"
-            )
-        else:
-            self.model_quota_label.setText("模型额度: N/A / N/A")
+        self._set_model_quota_label(result["model_remaining"], result["model_limit"])
 
         if result["status_code"] == 200:
             QMessageBox.information(
@@ -155,11 +146,7 @@ class ModelListTab(ModelListUI):
     def on_error(self, error_info):
         if not self.app.is_list_worker(self.sender()):
             return
-        self.all_models = []
-        self.model_list.clear()
-        self.status_label.setText("无数据/错误状态")
-        self.quota_label.setText("用户额度: N/A / N/A")
-        self.model_quota_label.setText("模型额度: N/A")
+        self._reset_error_state()
         QMessageBox.critical(self, "错误", get_core_error_message(error_info))
 
     def copy_model_id(self, model_id):
@@ -194,3 +181,24 @@ class ModelListTab(ModelListUI):
         message = self.app.delete_custom_model(model_id)
         self.status_label.setText(message)
         self.update_model_list()
+
+    def _set_user_quota_label(self, user_remaining, user_limit):
+        if user_remaining != "N/A" and user_limit != "N/A":
+            self.quota_label.setText(f"用户额度: {user_remaining} / {user_limit}")
+        else:
+            self.quota_label.setText("用户额度: N/A / N/A")
+
+    def _set_model_quota_label(self, model_remaining, model_limit):
+        if model_remaining != "N/A" and model_limit != "N/A":
+            self.model_quota_label.setText(
+                f"模型额度: {model_remaining} / {model_limit}"
+            )
+        else:
+            self.model_quota_label.setText("模型额度: N/A / N/A")
+
+    def _reset_error_state(self):
+        self.all_models = []
+        self.model_list.clear()
+        self.status_label.setText("无数据/错误状态")
+        self._set_user_quota_label("N/A", "N/A")
+        self.model_quota_label.setText("模型额度: N/A")

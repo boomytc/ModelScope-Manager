@@ -75,8 +75,7 @@ class AccountManageTab(AccountManageUI):
         if result.get("became_active") and self.on_account_changed:
             self.on_account_changed(name, api_key)
 
-        self.update_account_list()
-        self.status_label.setText(f"已添加: {name}")
+        self.refresh_accounts(f"已添加: {name}")
 
     def on_edit_account(self, account_name):
         """编辑账号。"""
@@ -94,8 +93,7 @@ class AccountManageTab(AccountManageUI):
 
         self.app.update_account(account_name, new_key, self.accounts)
 
-        self.update_account_list()
-        self.status_label.setText(f"已更新: {account_name}")
+        self.refresh_accounts(f"已更新: {account_name}")
 
         if account_name == self.app.get_active_account():
             if self.on_account_changed:
@@ -121,14 +119,12 @@ class AccountManageTab(AccountManageUI):
                     result.get("active_api_key", ""),
                 )
 
-        self.update_account_list()
-        self.status_label.setText(f"已删除: {account_name}")
+        self.refresh_accounts(f"已删除: {account_name}")
 
     def on_activate_account(self, account_name):
         """设置当前账号。"""
         result = self.app.activate_account(account_name, self.accounts)
-        self.update_account_list()
-        self.status_label.setText(f"已切换到: {account_name}")
+        self.refresh_accounts(f"已切换到: {account_name}")
 
         if self.on_account_changed:
             self.on_account_changed(account_name, result.get("active_api_key", ""))
@@ -142,3 +138,8 @@ class AccountManageTab(AccountManageUI):
         clipboard = QApplication.clipboard()
         clipboard.setText(api_key)
         self.status_label.setText("已复制 API Key")
+
+    def refresh_accounts(self, status_text=None):
+        self.update_account_list()
+        if status_text is not None:
+            self.status_label.setText(status_text)
