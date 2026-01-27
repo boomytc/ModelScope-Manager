@@ -9,3 +9,6 @@ dist
 
 # 环境配置文件
 .env
+
+# VibeCoding 相关
+AGENTS.md
