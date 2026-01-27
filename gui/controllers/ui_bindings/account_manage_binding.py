@@ -1,25 +1,20 @@
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QListWidgetItem, QApplication, QLineEdit
 from gui.ui.ui_account_manage import AccountManageUI, AccountItemWidget
 from gui.ui.messages import get_account_error_message
-
 from core import app_paths
-from core.account_store import AccountStore
-from core.account_service import AccountService
+from gui.controllers.app.account_manage_app import AccountManageApp
 
 class AccountManageTab(AccountManageUI):
-    """账号管理标签页功能逻辑。"""
+    """账号管理标签页 UI 绑定层。"""
 
     def __init__(self, config_manager, on_account_changed=None, parent=None):
         super().__init__(parent)
-        self.config_manager = config_manager
-        self.on_account_changed = on_account_changed  # 切换账号时的回调
-        self.env_path = app_paths.get_env_file()
-        self.accounts = {}  # {account_name: api_key}
-        self.default_account_name = "默认"  # 固定的默认账号名称
-        self.account_store = AccountStore(self.env_path, self.default_account_name)
-        self.account_service = AccountService(
-            self.config_manager,
-            self.account_store,
+        self.on_account_changed = on_account_changed
+        self.default_account_name = "默认"
+        self.accounts = {}
+        self.app = AccountManageApp(
+            config_manager,
+            app_paths.get_env_file(),
             self.default_account_name,
         )
 
@@ -28,13 +23,12 @@ class AccountManageTab(AccountManageUI):
 
     def load_accounts(self):
         """从 .env 加载所有账号。"""
-        self.accounts = self.account_service.load_accounts()
-
+        self.accounts = self.app.load_accounts()
         self.update_account_list()
 
     def update_account_list(self):
         """更新账号列表显示。"""
-        active_account = self.config_manager.get_active_account()
+        active_account = self.app.get_active_account()
         self.account_list.clear()
 
         for account_name, api_key in self.accounts.items():
@@ -69,7 +63,7 @@ class AccountManageTab(AccountManageUI):
             return
         api_key = api_key.strip()
 
-        result = self.account_service.add_account(name, api_key, self.accounts)
+        result = self.app.add_account(name, api_key, self.accounts)
         if not result["ok"]:
             QMessageBox.warning(
                 self,
@@ -98,13 +92,12 @@ class AccountManageTab(AccountManageUI):
             return
         new_key = new_key.strip()
 
-        result = self.account_service.update_account(account_name, new_key, self.accounts)
+        self.app.update_account(account_name, new_key, self.accounts)
 
         self.update_account_list()
         self.status_label.setText(f"已更新: {account_name}")
 
-        # 如果是当前账号，通知刷新
-        if account_name == self.config_manager.get_active_account():
+        if account_name == self.app.get_active_account():
             if self.on_account_changed:
                 self.on_account_changed(account_name, new_key)
 
@@ -119,9 +112,8 @@ class AccountManageTab(AccountManageUI):
         if reply != QMessageBox.Yes:
             return
 
-        result = self.account_service.delete_account(account_name, self.accounts)
+        result = self.app.delete_account(account_name, self.accounts)
 
-        # 如果删除的是当前账号，清空或切换
         if result.get("was_active"):
             if self.on_account_changed:
                 self.on_account_changed(
@@ -134,7 +126,7 @@ class AccountManageTab(AccountManageUI):
 
     def on_activate_account(self, account_name):
         """设置当前账号。"""
-        result = self.account_service.activate_account(account_name, self.accounts)
+        result = self.app.activate_account(account_name, self.accounts)
         self.update_account_list()
         self.status_label.setText(f"已切换到: {account_name}")
 
@@ -143,11 +135,10 @@ class AccountManageTab(AccountManageUI):
 
     def get_active_api_key(self):
         """获取当前激活账号的 API Key。"""
-        return self.account_service.get_active_api_key(self.accounts)
+        return self.app.get_active_api_key(self.accounts)
 
     def on_copy_api_key(self, api_key):
         """复制 API Key 到剪贴板。"""
         clipboard = QApplication.clipboard()
         clipboard.setText(api_key)
         self.status_label.setText("已复制 API Key")
-

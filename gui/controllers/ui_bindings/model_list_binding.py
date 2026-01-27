@@ -1,20 +1,16 @@
 from PySide6.QtWidgets import QMessageBox, QInputDialog, QApplication, QListWidgetItem
 from gui.ui.ui_model_list import ModelListUI, ModelItemWidget
 from gui.ui.messages import get_core_error_message
-from gui.controllers.workers import ModelListWorker, QuotaWorker
-from core.model_service import ModelService
+from gui.controllers.app.model_list_app import ModelListApp
 
 class ModelListTab(ModelListUI):
-    """模型列表标签页功能逻辑。"""
+    """模型列表标签页 UI 绑定层。"""
 
     def __init__(self, config_manager, get_api_key_func=None, parent=None):
         super().__init__(parent)
-        self.config_manager = config_manager
-        self.model_service = ModelService(config_manager)
+        self.app = ModelListApp(config_manager)
         self.get_api_key = get_api_key_func  # 获取当前 API Key 的回调
         self.all_models = []  # 存储 API 返回的模型列表
-        self.worker = None  # 模型列表加载 worker
-        self.quota_worker = None  # 额度检查 worker
 
         self.refresh_quota_btn.clicked.connect(self.on_refresh_quota)
         self.search_input.textChanged.connect(self.on_search_changed)
@@ -26,7 +22,7 @@ class ModelListTab(ModelListUI):
 
     def load_cached_quota(self):
         """加载缓存的额度信息。"""
-        quota = self.model_service.get_cached_quota()
+        quota = self.app.get_cached_quota()
         user_remaining = quota.get("user_remaining", "N/A")
         user_limit = quota.get("user_limit", "N/A")
         if user_remaining != "N/A":
@@ -34,23 +30,19 @@ class ModelListTab(ModelListUI):
 
     def load_data(self):
         """加载模型列表。"""
-        # 加载当前账号的缓存额度
         self.load_cached_quota()
 
         api_key = self.get_api_key() if self.get_api_key else None
-        self.worker = ModelListWorker(api_key)
-        self.worker.finished.connect(self.on_data_loaded)
-        self.worker.error.connect(self.on_error)
-        self.worker.start()
+        self.app.load_models(api_key, self.on_data_loaded, self.on_error)
 
     def on_data_loaded(self, quota_info):
-        if self.sender() is not self.worker:
+        if not self.app.is_list_worker(self.sender()):
             return
         models = quota_info.get("models", [])
         self.all_models = models
         self.status_label.setText(f"找到 {len(models)} 个模型")
 
-        result = self.model_service.update_quota_from_list(quota_info)
+        result = self.app.update_quota_from_list(quota_info)
         if result["updated"]:
             self.quota_label.setText(
                 f"用户额度: {result['user_remaining']} / {result['user_limit']}"
@@ -60,7 +52,6 @@ class ModelListTab(ModelListUI):
 
     def update_model_list(self):
         """根据搜索条件和收藏过滤更新模型列表。"""
-        # 记录当前滚动条位置
         current_scroll_value = self.model_list.verticalScrollBar().value()
 
         search_text = self.search_input.text().lower()
@@ -69,7 +60,7 @@ class ModelListTab(ModelListUI):
 
         self.model_list.clear()
 
-        items = self.model_service.build_model_items(
+        items = self.app.build_model_items(
             self.all_models,
             search_text,
             favorites_only,
@@ -92,7 +83,6 @@ class ModelListTab(ModelListUI):
             self.model_list.addItem(item)
             self.model_list.setItemWidget(item, widget)
 
-        # 恢复滚动条位置
         self.model_list.verticalScrollBar().setValue(current_scroll_value)
 
     def on_search_changed(self, text):
@@ -123,15 +113,12 @@ class ModelListTab(ModelListUI):
         if ok and model:
             self.quota_label.setText("额度: 检查中...")
             api_key = self.get_api_key() if self.get_api_key else None
-            self.quota_worker = QuotaWorker(model, api_key)
-            self.quota_worker.finished.connect(self.on_quota_checked)
-            self.quota_worker.error.connect(self.on_quota_error)
-            self.quota_worker.start()
+            self.app.check_quota(model, api_key, self.on_quota_checked, self.on_quota_error)
 
     def on_quota_checked(self, quota_info):
-        if self.sender() is not self.quota_worker:
+        if not self.app.is_quota_worker(self.sender()):
             return
-        result = self.model_service.update_quota_from_check(quota_info)
+        result = self.app.update_quota_from_check(quota_info)
         if result["updated"]:
             self.quota_label.setText(
                 f"用户额度: {result['user_remaining']} / {result['user_limit']}"
@@ -160,13 +147,13 @@ class ModelListTab(ModelListUI):
             )
 
     def on_quota_error(self, error_info):
-        if self.sender() is not self.quota_worker:
+        if not self.app.is_quota_worker(self.sender()):
             return
         self.quota_label.setText("额度: 错误")
         QMessageBox.critical(self, "错误", get_core_error_message(error_info))
 
     def on_error(self, error_info):
-        if self.sender() is not self.worker:
+        if not self.app.is_list_worker(self.sender()):
             return
         self.all_models = []
         self.model_list.clear()
@@ -181,12 +168,12 @@ class ModelListTab(ModelListUI):
         self.status_label.setText(f"已复制: {model_id}")
 
     def toggle_favorite(self, model_id):
-        message = self.model_service.toggle_favorite(model_id)
+        message = self.app.toggle_favorite(model_id)
         self.status_label.setText(message)
         self.update_model_list()
 
     def toggle_hide(self, model_id):
-        message = self.model_service.toggle_hidden(model_id)
+        message = self.app.toggle_hidden(model_id)
         self.status_label.setText(message)
         self.update_model_list()
 
@@ -196,7 +183,7 @@ class ModelListTab(ModelListUI):
         )
         if ok and model_id.strip():
             model_id = model_id.strip()
-            result = self.model_service.add_custom_model(model_id, self.all_models)
+            result = self.app.add_custom_model(model_id, self.all_models)
             if not result["ok"]:
                 QMessageBox.information(self, "提示", result["message"])
                 return
@@ -204,6 +191,6 @@ class ModelListTab(ModelListUI):
             self.update_model_list()
 
     def delete_custom_model(self, model_id):
-        message = self.model_service.delete_custom_model(model_id)
+        message = self.app.delete_custom_model(model_id)
         self.status_label.setText(message)
         self.update_model_list()
