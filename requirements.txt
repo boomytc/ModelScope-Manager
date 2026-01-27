@@ -3,4 +3,3 @@ requests
 python-dotenv
 pyside6
 toml
-pyinstaller
