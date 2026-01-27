@@ -5,7 +5,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, Signal
 
 
-from gui.utils import app_paths
+from gui.ui import ui_paths
 
 class ModelItemWidget(QWidget):
     """模型列表项 Widget。"""
@@ -33,7 +33,7 @@ class ModelItemWidget(QWidget):
 
         # 复制按钮
         self.copy_btn = QPushButton()
-        self.copy_btn.setIcon(QIcon(app_paths.get_icon_path("Copy.png")))
+        self.copy_btn.setIcon(QIcon(ui_paths.get_icon_path("Copy.png")))
         self.copy_btn.setFixedSize(24, 24)
         self.copy_btn.setFlat(True)
         self.copy_btn.setToolTip("复制模型 ID")
@@ -58,7 +58,7 @@ class ModelItemWidget(QWidget):
 
         # 删除按钮 (仅自定义模型显示)
         self.delete_btn = QPushButton()
-        self.delete_btn.setIcon(QIcon(app_paths.get_icon_path("Delete.png")))
+        self.delete_btn.setIcon(QIcon(ui_paths.get_icon_path("Delete.png")))
         self.delete_btn.setFixedSize(24, 24)
         self.delete_btn.setFlat(True)
         self.delete_btn.setToolTip("删除自定义模型")
@@ -68,10 +68,10 @@ class ModelItemWidget(QWidget):
 
     def update_favorite_icon(self):
         if self.is_favorite:
-            self.favorite_btn.setIcon(QIcon(app_paths.get_icon_path("Stared.png")))
+            self.favorite_btn.setIcon(QIcon(ui_paths.get_icon_path("Stared.png")))
             self.favorite_btn.setToolTip("从收藏移除")
         else:
-            self.favorite_btn.setIcon(QIcon(app_paths.get_icon_path("Star.png")))
+            self.favorite_btn.setIcon(QIcon(ui_paths.get_icon_path("Star.png")))
             self.favorite_btn.setToolTip("添加到收藏")
 
     def on_favorite_clicked(self):
@@ -81,10 +81,10 @@ class ModelItemWidget(QWidget):
 
     def update_hide_icon(self):
         if self.is_hidden:
-            self.hide_btn.setIcon(QIcon(app_paths.get_icon_path("EyeClose.png")))
+            self.hide_btn.setIcon(QIcon(ui_paths.get_icon_path("EyeClose.png")))
             self.hide_btn.setToolTip("取消隐藏")
         else:
-            self.hide_btn.setIcon(QIcon(app_paths.get_icon_path("Eye.png")))
+            self.hide_btn.setIcon(QIcon(ui_paths.get_icon_path("Eye.png")))
             self.hide_btn.setToolTip("隐藏模型")
 
     def on_hide_clicked(self):
@@ -136,7 +136,7 @@ class ModelListUI(QWidget):
         filter_layout.addWidget(self.hidden_only_checkbox)
         
         self.add_model_btn = QPushButton()
-        self.add_model_btn.setIcon(QIcon(app_paths.get_icon_path("Add.png")))
+        self.add_model_btn.setIcon(QIcon(ui_paths.get_icon_path("Add.png")))
         self.add_model_btn.setFixedSize(28, 28)
         self.add_model_btn.setToolTip("添加自定义模型")
         filter_layout.addWidget(self.add_model_btn)

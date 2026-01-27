@@ -9,7 +9,7 @@ width = 727
 height = 600
 
 [quotas.xxy]
-user_remaining = "1987"
+user_remaining = "1999"
 user_limit = "2000"
 
 [quotas.ytc]

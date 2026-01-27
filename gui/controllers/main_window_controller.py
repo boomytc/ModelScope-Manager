@@ -1,17 +1,18 @@
 from PySide6.QtGui import QGuiApplication
 from gui.ui.ui_mainwindow import MainWindowUI
-from gui.func.func_model_list import ModelListTab
-from gui.func.func_account_manage import AccountManageTab
-from gui.utils.config_manager import ConfigManager
+from gui.controllers.model_list_controller import ModelListTab
+from gui.controllers.account_manage_controller import AccountManageTab
+from core import app_paths
+from core.config_manager import ConfigManager
 
 class MainWindow(MainWindowUI):
     """主窗口功能逻辑，整合各标签页。"""
-    
+
     def __init__(self):
         super().__init__()
-        self.config_manager = ConfigManager()
+        self.config_manager = ConfigManager(app_paths.get_config_file())
         self.current_api_key = None
-        
+
         self.init_tabs()
         self.restore_geometry()
         self.model_tab.load_data()
@@ -21,17 +22,17 @@ class MainWindow(MainWindowUI):
         # Tab 1: 模型列表
         self.model_tab = ModelListTab(
             self.config_manager,
-            get_api_key_func=self.get_current_api_key
+            get_api_key_func=self.get_current_api_key,
         )
         self.tab_widget.addTab(self.model_tab, "模型列表")
-        
+
         # Tab 2: 账号管理
         self.account_tab = AccountManageTab(
-            self.config_manager, 
-            on_account_changed=self.on_account_changed
+            self.config_manager,
+            on_account_changed=self.on_account_changed,
         )
         self.tab_widget.addTab(self.account_tab, "账号管理")
-        
+
         # 初始化 API Key
         self.current_api_key = self.account_tab.get_active_api_key()
 

@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, Signal
 
-from gui.utils import app_paths
+from gui.ui import ui_paths
 
 class AccountItemWidget(QWidget):
     """账号列表项 Widget。"""
@@ -52,7 +52,7 @@ class AccountItemWidget(QWidget):
 
         # 复制按钮
         self.copy_btn = QPushButton()
-        self.copy_btn.setIcon(QIcon(app_paths.get_icon_path("Copy.png")))
+        self.copy_btn.setIcon(QIcon(ui_paths.get_icon_path("Copy.png")))
         self.copy_btn.setFixedSize(28, 28)
         self.copy_btn.setToolTip("复制 API Key")
         self.copy_btn.clicked.connect(lambda: self.copy_clicked.emit(self.api_key))
@@ -60,7 +60,7 @@ class AccountItemWidget(QWidget):
 
         # 编辑按钮
         self.edit_btn = QPushButton()
-        self.edit_btn.setIcon(QIcon(app_paths.get_icon_path("Edit.png")))
+        self.edit_btn.setIcon(QIcon(ui_paths.get_icon_path("Edit.png")))
         self.edit_btn.setFixedSize(28, 28)
         self.edit_btn.setToolTip("编辑账号")
         self.edit_btn.clicked.connect(lambda: self.edit_clicked.emit(self.account_name))
@@ -68,7 +68,7 @@ class AccountItemWidget(QWidget):
 
         # 删除按钮 (默认账号不显示)
         self.delete_btn = QPushButton()
-        self.delete_btn.setIcon(QIcon(app_paths.get_icon_path("Delete.png")))
+        self.delete_btn.setIcon(QIcon(ui_paths.get_icon_path("Delete.png")))
         self.delete_btn.setFixedSize(28, 28)
         self.delete_btn.setToolTip("删除账号")
         self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.account_name))
@@ -103,7 +103,7 @@ class AccountManageUI(QWidget):
         header_layout.addStretch()
         
         self.add_btn = QPushButton()
-        self.add_btn.setIcon(QIcon(app_paths.get_icon_path("Add.png")))
+        self.add_btn.setIcon(QIcon(ui_paths.get_icon_path("Add.png")))
         self.add_btn.setFixedSize(32, 32)
         self.add_btn.setToolTip("添加新账号")
         header_layout.addWidget(self.add_btn)

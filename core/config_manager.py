@@ -1,13 +1,11 @@
 import logging
-import toml
 from pathlib import Path
-from gui.utils import app_paths
+import toml
 
 class ConfigManager:
     def __init__(self, config_path=None):
         if config_path is None:
-            # 默认配置路径 (跨平台用户数据目录)
-            config_path = app_paths.get_config_file()
+            config_path = Path("config.toml")
         self.config_path = Path(config_path)
         self.config = {}
         self.load_config()
@@ -27,7 +25,6 @@ class ConfigManager:
     def save_config(self):
         """将当前配置保存到 TOML 文件。"""
         try:
-            # 确保目录存在
             self.config_path.parent.mkdir(parents=True, exist_ok=True)
             with open(self.config_path, "w") as f:
                 toml.dump(self.config, f)
@@ -41,14 +38,14 @@ class ConfigManager:
             window_config.get("x", 100),
             window_config.get("y", 100),
             window_config.get("width", 800),
-            window_config.get("height", 600)
+            window_config.get("height", 600),
         )
 
     def set_window_geometry(self, x, y, width, height):
         """更新配置中的窗口几何信息。"""
         if "window" not in self.config:
             self.config["window"] = {}
-        
+
         self.config["window"]["x"] = x
         self.config["window"]["y"] = y
         self.config["window"]["width"] = width
@@ -132,7 +129,7 @@ class ConfigManager:
         account_quota = quotas.get(account, {})
         return {
             "user_remaining": account_quota.get("user_remaining", "N/A"),
-            "user_limit": account_quota.get("user_limit", "N/A")
+            "user_limit": account_quota.get("user_limit", "N/A"),
         }
 
     def set_last_quota(self, user_remaining, user_limit):
@@ -143,7 +140,7 @@ class ConfigManager:
 
         if "quotas" not in self.config:
             self.config["quotas"] = {}
-        
+
         if account not in self.config["quotas"]:
             self.config["quotas"][account] = {}
 
