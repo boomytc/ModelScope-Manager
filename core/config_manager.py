@@ -1,11 +1,12 @@
 import logging
 from pathlib import Path
 import toml
+from core import app_paths
 
 class ConfigManager:
     def __init__(self, config_path=None):
         if config_path is None:
-            config_path = Path("config.toml")
+            config_path = app_paths.get_config_file()
         self.config_path = Path(config_path)
         self.config = {}
         self.load_config()

@@ -32,7 +32,7 @@ class ModelService:
     def get_cached_quota(self):
         return self.config_manager.get_last_quota()
 
-    def update_quota_from_list(self, quota_info):
+    def build_quota_update(self, quota_info):
         user_limit = quota_info.get("user_limit", "N/A")
         user_remaining = quota_info.get("user_remaining", "N/A")
         updated = False
@@ -41,6 +41,11 @@ class ModelService:
             self.config_manager.set_last_quota(user_remaining, user_limit)
             self.config_manager.save_config()
             updated = True
+
+        return user_limit, user_remaining, updated
+
+    def update_quota_from_list(self, quota_info):
+        user_limit, user_remaining, updated = self.build_quota_update(quota_info)
 
         return {
             "user_limit": user_limit,
@@ -49,17 +54,10 @@ class ModelService:
         }
 
     def update_quota_from_check(self, quota_info):
-        user_limit = quota_info.get("user_limit", "N/A")
-        user_remaining = quota_info.get("user_remaining", "N/A")
+        user_limit, user_remaining, updated = self.build_quota_update(quota_info)
         model_limit = quota_info.get("model_limit", "N/A")
         model_remaining = quota_info.get("model_remaining", "N/A")
         status_code = quota_info.get("status_code", "Unknown")
-        updated = False
-
-        if user_remaining != "N/A" and user_limit != "N/A":
-            self.config_manager.set_last_quota(user_remaining, user_limit)
-            self.config_manager.save_config()
-            updated = True
 
         return {
             "user_limit": user_limit,

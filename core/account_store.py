@@ -23,11 +23,12 @@ class AccountStore:
         return accounts
 
     def add_account(self, account_name, api_key):
-        env_key = self._get_env_key(account_name)
-        set_key(str(self.env_path), env_key, api_key)
-        os.environ[env_key] = api_key
+        self.set_account(account_name, api_key)
 
     def update_account(self, account_name, api_key):
+        self.set_account(account_name, api_key)
+
+    def set_account(self, account_name, api_key):
         env_key = self._get_env_key(account_name)
         set_key(str(self.env_path), env_key, api_key)
         os.environ[env_key] = api_key
