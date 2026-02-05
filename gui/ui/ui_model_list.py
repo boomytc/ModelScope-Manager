@@ -24,7 +24,7 @@ class ModelItemWidget(QWidget):
 
     def init_ui(self):
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(4, 2, 4, 2)
+        layout.setContentsMargins(8, 4, 8, 4)
 
         # 模型名称
         self.label = QLabel(self.model_id)
@@ -34,15 +34,16 @@ class ModelItemWidget(QWidget):
         # 复制按钮
         self.copy_btn = QPushButton()
         self.copy_btn.setIcon(QIcon(ui_paths.get_icon_path("Copy.png")))
-        self.copy_btn.setFixedSize(24, 24)
+        self.copy_btn.setFixedSize(28, 28)
         self.copy_btn.setFlat(True)
         self.copy_btn.setToolTip("复制模型 ID")
+        self.copy_btn.setAccessibleName("复制模型 ID")
         self.copy_btn.clicked.connect(lambda: self.copy_clicked.emit(self.model_id))
         layout.addWidget(self.copy_btn)
 
         # 收藏按钮
         self.favorite_btn = QPushButton()
-        self.favorite_btn.setFixedSize(24, 24)
+        self.favorite_btn.setFixedSize(28, 28)
         self.favorite_btn.setFlat(True)
         self.update_favorite_icon()
         self.favorite_btn.clicked.connect(self.on_favorite_clicked)
@@ -50,7 +51,7 @@ class ModelItemWidget(QWidget):
 
         # 隐藏按钮
         self.hide_btn = QPushButton()
-        self.hide_btn.setFixedSize(24, 24)
+        self.hide_btn.setFixedSize(28, 28)
         self.hide_btn.setFlat(True)
         self.update_hide_icon()
         self.hide_btn.clicked.connect(self.on_hide_clicked)
@@ -59,9 +60,10 @@ class ModelItemWidget(QWidget):
         # 删除按钮 (仅自定义模型显示)
         self.delete_btn = QPushButton()
         self.delete_btn.setIcon(QIcon(ui_paths.get_icon_path("Delete.png")))
-        self.delete_btn.setFixedSize(24, 24)
+        self.delete_btn.setFixedSize(28, 28)
         self.delete_btn.setFlat(True)
         self.delete_btn.setToolTip("删除自定义模型")
+        self.delete_btn.setAccessibleName("删除自定义模型")
         self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.model_id))
         self.delete_btn.setVisible(self.is_custom)
         layout.addWidget(self.delete_btn)
@@ -70,9 +72,11 @@ class ModelItemWidget(QWidget):
         if self.is_favorite:
             self.favorite_btn.setIcon(QIcon(ui_paths.get_icon_path("Stared.png")))
             self.favorite_btn.setToolTip("从收藏移除")
+            self.favorite_btn.setAccessibleName("从收藏移除")
         else:
             self.favorite_btn.setIcon(QIcon(ui_paths.get_icon_path("Star.png")))
             self.favorite_btn.setToolTip("添加到收藏")
+            self.favorite_btn.setAccessibleName("添加到收藏")
 
     def on_favorite_clicked(self):
         self.is_favorite = not self.is_favorite
@@ -83,9 +87,11 @@ class ModelItemWidget(QWidget):
         if self.is_hidden:
             self.hide_btn.setIcon(QIcon(ui_paths.get_icon_path("EyeClose.png")))
             self.hide_btn.setToolTip("取消隐藏")
+            self.hide_btn.setAccessibleName("取消隐藏")
         else:
             self.hide_btn.setIcon(QIcon(ui_paths.get_icon_path("Eye.png")))
             self.hide_btn.setToolTip("隐藏模型")
+            self.hide_btn.setAccessibleName("隐藏模型")
 
     def on_hide_clicked(self):
         self.is_hidden = not self.is_hidden

@@ -55,6 +55,7 @@ class AccountItemWidget(QWidget):
         self.copy_btn.setIcon(QIcon(ui_paths.get_icon_path("Copy.png")))
         self.copy_btn.setFixedSize(28, 28)
         self.copy_btn.setToolTip("复制 API Key")
+        self.copy_btn.setAccessibleName("复制 API Key")
         self.copy_btn.clicked.connect(lambda: self.copy_clicked.emit(self.api_key))
         layout.addWidget(self.copy_btn)
 
@@ -63,6 +64,7 @@ class AccountItemWidget(QWidget):
         self.edit_btn.setIcon(QIcon(ui_paths.get_icon_path("Edit.png")))
         self.edit_btn.setFixedSize(28, 28)
         self.edit_btn.setToolTip("编辑账号")
+        self.edit_btn.setAccessibleName("编辑账号")
         self.edit_btn.clicked.connect(lambda: self.edit_clicked.emit(self.account_name))
         layout.addWidget(self.edit_btn)
 
@@ -71,6 +73,7 @@ class AccountItemWidget(QWidget):
         self.delete_btn.setIcon(QIcon(ui_paths.get_icon_path("Delete.png")))
         self.delete_btn.setFixedSize(28, 28)
         self.delete_btn.setToolTip("删除账号")
+        self.delete_btn.setAccessibleName("删除账号")
         self.delete_btn.clicked.connect(lambda: self.delete_clicked.emit(self.account_name))
         self.delete_btn.setVisible(not self.is_default)
         layout.addWidget(self.delete_btn)
@@ -100,12 +103,11 @@ class AccountManageUI(QWidget):
         
         header_layout.addStretch()
         
-        header_layout.addStretch()
-        
         self.add_btn = QPushButton()
         self.add_btn.setIcon(QIcon(ui_paths.get_icon_path("Add.png")))
         self.add_btn.setFixedSize(32, 32)
         self.add_btn.setToolTip("添加新账号")
+        self.add_btn.setAccessibleName("添加新账号")
         header_layout.addWidget(self.add_btn)
         
         layout.addLayout(header_layout)
