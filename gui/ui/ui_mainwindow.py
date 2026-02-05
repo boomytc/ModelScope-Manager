@@ -159,7 +159,7 @@ class MainWindowUI(QMainWindow):
         painter.setRenderHint(QPainter.Antialiasing)
         
         # 背景颜色 (半透明白色，模拟 Glassmorphism)
-        bg_color = QColor(255, 255, 255, 240) # 94% 不透明度
+        bg_color = QColor(255, 255, 255, 178.5) # 70% 不透明度
         painter.setBrush(QBrush(bg_color))
         painter.setPen(Qt.NoPen)
         
