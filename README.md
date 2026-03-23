@@ -33,8 +33,11 @@
 
 ### 1. 安装依赖
 
+使用 `uv` 创建虚拟环境并同步依赖：
+
 ```bash
-uv pip install -r requirements.txt
+uv venv --python 3.12
+uv sync
 ```
 
 ### 2. 配置 API Key
@@ -47,8 +50,10 @@ API_KEY=your_default_api_key
 
 ### 3. 启动应用
 
+使用 `uv run` 直接在虚拟环境中运行应用：
+
 ```bash
-python gui/main.py
+uv run python gui/main.py
 ```
 
 ## 📦 数据存储说明
